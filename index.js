@@ -12,9 +12,19 @@ program
   .command("getQuote")
   .description("Retrieves a random quote")
   .action(async () => {
-    // TODO: Pull a random quote from the quotes.txt file
-    // console log the quote and author
-    // You may style the text with chalk as you wish
+    try {
+      // TODO: Pull a random quote from the quotes.txt file
+      const data = await fs.readFile(QUOTE_FILE, "utf8");
+      const lines = data.split("\n").filter(line => line.trim() !=="");
+      const randomLine = lines [Math.floor(Math.random() * lines.length)];
+      const [quote, author] = randomLine.split("|");
+      // console log the quote and author
+      // You may style the text with chalk as you wish
+      console.log(chalk.whiteBright(`"${quote}"`));
+      console.log(chalk.gray(`- ${author || "Anonymous"}`));
+      } catch (err) {
+        console.error(chalk.red("Error"), err);
+      }
   });
 
 program
@@ -22,13 +32,21 @@ program
   .description("adds a quote to the quote file")
   .action(async (quote, author) => {
     // TODO: Add the quote and author to the quotes.txt file
-    // If no author is provided,
-    // save the author as "Anonymous".
-    // After the quote/author is saved,
-    // alert the user that the quote was added.
-    // You may style the text with chalk as you wish
-    // HINT: You can store both author and quote on the same line using
-    // a separator like pipe | and then using .split() when retrieving
+    try {
+      // save the author as "Anonymous".
+      // After the quote/author is saved,
+      const newQuote = `${quote}|${author || "Anonymous"}\n`;
+      await fs.appendFile(QUOTE_FILE, newQuote, "utf8");
+      // alert the user that the quote was added.
+      // You may style the text with chalk as you wish      
+      // // HINT: You can store both author and quote on the same line using
+      // a separator like pipe | and then using .split() when retrieving
+      console.log(chalk.green("Quote added!"));
+      console.log(chalk.whiteBright(`"${quote}`));
+      console.log(chalk.gray(`- ${author || "Anonymous"}`));
+    } catch (err) {
+      console.log(chalk.red("Error"), err);
+    }
   });
 
 program.parse();
